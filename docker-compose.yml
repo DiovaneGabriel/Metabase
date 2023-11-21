@@ -1,0 +1,61 @@
+version: "3"
+
+services:
+
+  mariadb:
+    image: mariadb:10.4
+    container_name: "mariadb"
+    volumes:
+      - .docker/mariadb/database:/var/lib/mysql
+      - .docker/mariadb/scripts:/docker-entrypoint-initdb.d
+    ports:
+      - 127.0.0.1:3306:3306
+    environment:
+      MYSQL_PASSWORD: aml@password
+      MYSQL_ROOT_PASSWORD: aml@password
+    command: --init-file /docker-entrypoint-initdb.d/create-database.sql
+    networks:
+      - custom_network
+
+  metabase:
+    image: metabase/metabase
+    # volumes:
+    #   - /caminho/para/metabase-config.yml:/app/metabase.metabase-config.yml
+    ports:
+      - "3000:3000"
+    environment:
+      MB_DB_TYPE: mysql
+      MB_DB_DBNAME: metabase
+      MB_DB_PORT: 3306
+      MB_DB_USER: root
+      MB_DB_PASS: aml@password
+      MB_DB_HOST: mariadb
+    depends_on:
+      - mariadb
+    networks:
+      - custom_network
+
+  # bookstack:
+  #   image: lscr.io/linuxserver/bookstack
+  #   container_name: bookstack
+  #   environment:
+  #     PUID: 1000
+  #     PGID: 1000
+  #     APP_URL: http://localhost
+  #     DB_HOST: mariadb
+  #     DB_PORT: 3306
+  #     DB_USER: root
+  #     DB_PASS: aml@password
+  #     DB_DATABASE: bookstack
+  #   volumes:
+  #     - .docker/bookstack/uploads:/var/www/html/public/uploads
+  #     - .docker/bookstack/config:/config
+  #   ports:
+  #     - 80:80
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - mariadb
+
+networks:
+  custom_network:
+    external: true
