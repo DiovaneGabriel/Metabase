@@ -55,6 +55,8 @@ services:
   #   restart: unless-stopped
   #   depends_on:
   #     - mariadb
+  #   networks:
+  #     - custom_network
 
 networks:
   custom_network:
